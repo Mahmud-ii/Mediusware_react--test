@@ -2,12 +2,15 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getContactItems, openModal } from "../store/slices/contactSlice";
 import FormModal from "./Modal";
+import axios from "axios";
 
 const Problem2 = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getContactItems());
   }, [dispatch]);
+
+  // Call the asynchronous function
   return (
     <>
       <FormModal />

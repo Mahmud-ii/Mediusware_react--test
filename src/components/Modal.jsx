@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MenuItem, Select } from "@mui/material";
+
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import Grid from "@mui/material/Grid";
@@ -9,14 +9,40 @@ import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import Icon from "@mui/material/Icon";
+
 import { useDispatch, useSelector } from "react-redux";
-import { closeModal } from "../store/slices/contactSlice";
+import { changeCat, closeModal } from "../store/slices/contactSlice";
 
 const FormModal = () => {
   const dispatch = useDispatch();
-  const { isOpen } = useSelector((store) => store.contact);
+  const { contactItems, isLoading, formOpen, isOpen, category } = useSelector(
+    (store) => store.contact
+  );
+
+  const [show, setShow] = useState("all");
+  const [searchVal, setSearchVal] = useState("");
+
   let contacts = [];
+
+  const handleClick = (val) => {
+    setShow(val);
+    dispatch(changeCat(val));
+  };
+
+  if (category == "all") {
+    contacts = contactItems;
+  } else if (category == "us") {
+    contacts = contactItems.filter(
+      (item) => item.country.name == "United States"
+    );
+  }
+
+  const handleSearch = (e) => {
+    contacts = contactItems.filter((item) =>
+      item.country.name.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+  };
+
   return (
     <Dialog fullWidth maxWidth="sm" open={isOpen}>
       <DialogContent>
@@ -45,7 +71,13 @@ const FormModal = () => {
 
             <Grid container direction="row" spacing={1}>
               <Grid item xs={12}>
-                <TextField name="imageUrl" label="Search..." />
+                <TextField
+                  fullWidth
+                  name=""
+                  // value={searchVal}
+                  label="Search..."
+                  onChange={(e) => handleSearch(e)}
+                />
               </Grid>
 
               <Grid item xs={12}>
@@ -53,14 +85,14 @@ const FormModal = () => {
                   <thead>
                     <tr>
                       <th scope="col">Name</th>
-                      <th scope="col">Status</th>
+                      <th scope="col">Number</th>
                     </tr>
                   </thead>
                   <tbody>
                     {contacts?.map((item, key) => (
                       <tr key={key}>
-                        <td scope="col">{item.name}</td>
-                        <td scope="col">{item.status}</td>
+                        <td scope="col">{item.country.name}</td>
+                        <td scope="col">{item.phone}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -77,7 +109,7 @@ const FormModal = () => {
                       <Button
                         sx={{ color: "#46139f", border: "1px solid #46139f" }}
                         onClick={() => {
-                          dispatch(closeModal());
+                          handleClick("all");
                         }}
                       >
                         All Contacts
@@ -87,7 +119,7 @@ const FormModal = () => {
                       <Button
                         sx={{ color: "#ff7f50", border: "1px solid #ff7f50" }}
                         onClick={() => {
-                          dispatch(closeModal());
+                          handleClick("us");
                         }}
                       >
                         US Contacts
